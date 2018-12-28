@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heying.hrmanager.mapper.RecruitCustomMapper">
+	<resultMap type="RecruitCustom" id="recruitCustomResultMap"
+		extends="com.heying.hrmanager.mapper.RecruitMapper.ResultMapWithBLOBs">
+		<association property="dept" javaType="Dept">
+			<id column="deptId" property="id" jdbcType="INTEGER" />
+			<result column="Dept_name" property="deptName" jdbcType="VARCHAR" />
+			<result column="dept_createTime" property="createtime"
+				jdbcType="DATE" />
+		</association>
+		<association property="deptPosition" javaType="Position">
+			<id column="positionId" property="id" jdbcType="INTEGER" />
+			<result column="position_name" property="positionName"
+				jdbcType="VARCHAR" />
+			<result column="position_createTime" property="createtime"
+				jdbcType="DATE" />
+			<result column="deptId" property="deptid" jdbcType="INTEGER" />
+		</association>
+	</resultMap>
+
+	<resultMap type="RecruitCustom" id="recruitAndResumeListCustomResultMap"
+		extends="recruitCustomResultMap">
+		<collection property="resumes" ofType="ResumeCustom">
+			<id column="resumeId" property="id" jdbcType="INTEGER" />
+			<result column="name" property="name" jdbcType="VARCHAR" />
+			<result column="birthday" property="birthday" jdbcType="DATE" />
+			<result column="gender" property="gender" jdbcType="VARCHAR" />
+			<result column="education" property="education" jdbcType="VARCHAR" />
+			<result column="userId" property="userid" jdbcType="INTEGER" />
+			<result column="interviewTime" property="interviewTime" />
+			<result column="consult" property="consult" />
+			<result column="entry" property="entry" />
+		</collection>
+	</resultMap>
+
+	<!-- <select id="findRecruitAndResumeList" parameterType="QueryVo" resultMap="recruitAndResumeListCustomResultMap"> -->
+	<!-- select recruit.*,resume.id as -->
+	<!-- resumeId,resume.name,resume.birthday,resume.gender,resume.experience,resume.education,resume.userId -->
+	<!-- from recruit,recruitandresume,resume -->
+	<!-- where recruit.id=recruitandresume.recruitId and -->
+	<!-- resume.id=recruitandresume.resumeId -->
+	<!-- </select> -->
+
+	<select id="findRecruitAndResumeList" parameterType="QueryVo"
+		resultMap="recruitAndResumeListCustomResultMap">
+		select recruit.*,resume.id as
+		resumeId,resume.name,resume.birthday,resume.gender,resume.experience,resume.education,resume.userId,
+		recruitandresume.interviewTime,recruitandresume.consult,recruitandresume.entry
+		from recruit,recruitandresume,resume
+		where recruit.id=recruitandresume.recruitId and
+		resume.id=recruitandresume.resumeId
+		<if test="userId!=null">
+			and resume.userid=#{userId}
+		</if>
+		<if test="recruitId!=null">
+			and recruit.id=#{recruidId}
+		</if>
+		<if test="resume!=null">
+			<if test="resume.id!=null">
+				and resume.id=#{resume.id}
+			</if>
+		</if>		
+		order by interviewTime desc
+	</select>
+	<select id="findAllRecruitCustom" parameterType="QueryVo"
+		resultMap="recruitCustomResultMap">
+		select
+		recruit.*,dept.createtime as
+		dept_createtime,dept.dept_name,position.position_name,position.createtime
+		as position_createtime
+		from recruit,dept,position
+		where
+		recruit.deptid=dept.id and position.id=recruit.postionid
+		<if test="recruitCustom!=null">
+			<if test="recruitCustom.id!=null">
+				and recruit.id=#{recruitCustom.id}
+			</if>
+		</if>
+		
+	</select>
+	<select id="findAllRecruitCustomByPage" parameterType="QueryVo"
+		resultMap="recruitCustomResultMap">
+		select
+		recruit.*,dept.createtime as
+		dept_createtime,dept.dept_name,position.position_name,position.createtime
+		as position_createtime
+		from recruit,dept,position
+		where
+		recruit.deptid=dept.id and position.id=recruit.postionid
+		<if test="recruitCustom!=null">
+			<if test="recruitCustom.id!=null">
+				and recruit.id=#{recruitCustom.id}
+			</if>
+		</if>
+		limit #{recruitPageStart},#{recruitPageSize}
+	</select>
+
+</mapper>

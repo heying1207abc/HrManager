@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heying.hrmanager.mapper.AttendanceflowingCustomMapper" >
+ <!-- 通过流水主键，得到状态 -->
+ <select id="findStateByBeginTime" parameterType="int" resultType="int"> 
+ SELECT CASE 
+ when DAYOFWEEK(attendanceflowing.beginTime)=1 or DAYOFWEEK(attendanceflowing.beginTime)=7 then 4
+ WHEN attendanceflowing.beginTime is null then 3
+ WHEN hour(attendanceflowing.beginTime)-hour(attendance.beginTime)>=3 
+ or hour(attendanceflowing.endTime)-hour(attendance.endTime)>=3
+ THEN 3
+when hour(attendanceflowing.beginTime)-hour(attendance.beginTime)&lt;=0
+or hour(attendanceflowing.endTime)-hour(attendance.endTime)&lt;=0
+then 1 
+ELSE 2
+end as state
+from attendanceflowing,attendance
+ where attendance.employeeId=attendanceflowing.employeeid and attendanceflowing.id=#{id};
+ </select>
+ <!-- 通过当天上班打卡得到考勤流水id -->
+ <select id="findIdByBeginTime" parameterType="int" resultType="int">
+ select id from attendanceflowing where employeeid=#{id} and beginTime>CURDATE()
+ </select>
+ 
+ 
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heying.hrmanager.mapper.EmployeeCustomMapper">
+	<resultMap type="EmployeeCustom" id="employeeCustomResultMap"
+		extends="com.heying.hrmanager.mapper.EmployeeMapper.BaseResultMap">
+		<association property="dept" javaType="Dept">
+			<id column="deptid" property="id" jdbcType="INTEGER" />
+			<result column="Dept_name" property="deptName" jdbcType="VARCHAR" />
+			<result column="createTime" property="createtime" jdbcType="DATE" />
+		</association>
+		<association property="position" javaType="position">
+			<id column="positionid" property="id" jdbcType="INTEGER" />
+			<result column="position_name" property="positionName"
+				jdbcType="VARCHAR" />
+			<result column="createTime" property="createtime" jdbcType="DATE" />
+			<result column="dept_id" property="deptid" jdbcType="INTEGER" />
+		</association>
+		<association property="state" javaType="Employeestate">
+			<id column="stateid" property="id" jdbcType="INTEGER" />
+			<result column="state" property="state" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+
+	<resultMap type="EmployeeCustom" id="employeeCustomByRewardResultMap"
+		extends="employeeCustomResultMap">
+		<collection property="rewardsandpunishments" ofType="Rewardsandpunishments">
+			<id column="rewardsandpunishments_id" property="id" jdbcType="INTEGER" />
+			<result column="Rewardsandpunishmentstime" property="rewardsandpunishmentstime"
+				jdbcType="DATE" />
+			<result column="reason" property="reason" jdbcType="VARCHAR" />
+			<result column="money" property="money" jdbcType="DOUBLE" />
+			<result column="id" property="employeeid" jdbcType="INTEGER" />
+		</collection>
+	</resultMap>
+
+	<select id="findAllEmployee" resultMap="employeeCustomResultMap">
+		select employee.*,dept.id as dept_id,dept.Dept_name,dept.createTime as
+		dept_createtime,
+		position.id as position_id,position.position_name,position.createTime as
+		position_createtime,
+		employeestate.id as employeestate_id,employeestate.state
+		from employee,dept,position,employeestate
+		where employee.deptId=dept.id and position.id=employee.positionid
+		and employeestate.id=employee.stateid
+	</select>
+
+	<select id="findAllEmployeeByRewardDate" parameterType="QueryVo" resultMap="employeeCustomByRewardResultMap">
+		select employee.*,rewardsandpunishments.id as rewardsandpunishments_id,rewardsandpunishments.rewardsandpunishmentstime,reason,money
+		from employee,rewardsandpunishments
+		where employee.id=rewardsandpunishments.employeeId
+		<if test="rewardsBeginTime!=null and rewardsEndTime!=null">
+			and rewardsandpunishments.rewardsandpunishmentstime between #{rewardsBeginTime} and #{rewardsEndTime}
+		</if>
+		<if test="dept!=null">
+			<if test="dept.id!=null">
+				and employee.deptId=#{dept.id}
+			</if>
+		</if>
+		<if test="position!=null">
+			<if test="position.id!=null">
+				and employee.positionid=#{position.id}
+			</if>
+		</if>
+	</select>
+</mapper>

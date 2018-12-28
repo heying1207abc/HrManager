@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.heying.hrmanager.mapper.ResumeCustomMapper">
+  <select id="findAllResumeByPage" parameterType="QueryVo" resultType="Resume">
+  	select * from resume
+  	<where>
+  		<if test="resume!=null">
+  			<if test="resume.id!=null">
+  				and resume.id=#{resume.id}
+  			</if>
+  			<if test="resume.userid!=null">
+  				and resume.userid=#{resume.userid}
+  			</if>
+  		</if>
+  	</where>
+  	limit #{resumePageStart},#{resumePageSize}
+  </select>
+  
+  
+</mapper>
